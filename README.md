@@ -12,7 +12,10 @@ Usage
 ``` r
 g <- ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length))
 
-g + theme2(ax.txt(sz=20, f="bold"), ax.ln(col='gray60', sz=2), panel.bg(fill="white"))
+g + theme2(ax.txt(sz=20, f="bold"),
+           ax.line(col='gray60', sz=2),
+           panel.bg(fill="white")
+          )
 ```
 
 ![ggconf Example](inst/image/README-ex.png)
@@ -22,19 +25,21 @@ The following ggplot2 command generates the same plot.
 ``` r
 g + ggplot2::theme(axis.text = element_text(size=20, face="bold"),
                    axis.line = element_line(colour="gray60", size=2),
-                   panel.background = element_rect(fill="white"))
+                   panel.background = element_rect(fill="white")
+                  )
 ```
 
-### Getting Started
+Getting Started
+---------------
 
-If you replace your `ggplot2::theme()` call with `ggconf::theme2()` call, ggconf would work. All of the followings return the same plot.
+If you replace your `ggplot2::theme()` with `ggconf::theme2()`, ggconf would work. All of the followings return the same plot, and you can use the style you prefer the most.
 
 ``` r
 g + theme( axis.text = element_text(size=20, face="bold")) # Style 1: ggplot2 default (50 characters)
 g + theme2(axis.text = element_text(size=20, face="bold")) # Style 2: ggconf
 g + theme2(axis.text(size=20, face="bold"))                # Style 3: ggconf without element_text()
 g + theme2(ax.txt(sz=20, face="bold"))                     # Style 4: ggconf shorter but readable
-g + theme2(at(z=20, f="bold"))                             # Style 5: ggconf shortest (25 chars)
+g + theme2(at(z=20, f="bold"))                             # Style 5: ggconf shortest (25 characters)
 ```
 
 Features
@@ -46,7 +51,7 @@ Features
 
 Even if the unique identification is not possible for specified elements (e.g. theme element names or arguments), `ggconf` tries to execute its best estimate instead of just returning an error.
 
-For the input `theme2(ax.txt(sz=20, fc="bold"), ax.ln(col='gray60'), panel.bg(fill="white"))`, ggconf performs partial matches six times.
+For the input `theme2(ax.txt(sz=20, fc="bold"), ax.ln(c='gray60'), panel.bg(fill="white"))`, ggconf performs partial matches six times.
 
 -   **theme element names**
     -   `ax.txt` matches `axis.text`. You can even write `a.t` or `at`.
@@ -54,10 +59,10 @@ For the input `theme2(ax.txt(sz=20, fc="bold"), ax.ln(col='gray60'), panel.bg(fi
     -   `panel.bg` matches `panel.background`. You can even write `pnl.bg`.
         -   `p.bg` matches `plot.background` according to edit distance.
 -   **theme configuration arguments**
-    -   `sz` matches `size`.
+    -   `sz` or `z` match `size`.
     -   `f` matches `face` (fontface).
         -   `fill` needs to write not just `f` but `fi`.
-    -   `col` matches `colour`.
+    -   `c` matches `colour`.
 
 Installation
 ------------
@@ -67,14 +72,16 @@ Installation
 devtools::install_github("caprice-j/ggconf")
 ```
 
--   If you get `no appender.console()` error, you might need `install.packages('rly')`. `packageVersion('rly')` should be at least 1.4.2.
+-   If you get `no appender.console()` error, please `install.packages('rly')`.
 
--   This package is still in its infancy and might contain several installation bugs.
+Example
+-------
 
-Examples
---------
+The goal of ggconf is to make it less stressful to finalize your plots.
 
 #### Raw ggplot2 plot
+
+The following plot uses the ggplot2 default appearance settings.
 
 ``` r
 suppressPackageStartupMessages(library(dplyr))
@@ -92,76 +99,74 @@ gg
 
 ![ggconf Example](inst/image/README-raw.png)
 
-#### After finalization
+-   When we consider making a presentation, this plot has several issues:
+    -   **Axis titles** and **numeric values** are too small to see through remote screen sharing (i.e. low-resolution)
+    -   **Y-axis title** is rotated and does not jump out at you unless carefully looking at it
+    -   **Title** and **subtitle** fonts are not aesthetically appealing
+    -   Does not necessarily conform to company-specific styles (e.g. white background)
+
+For resolving these issues, you would add the following `theme()` configurations:
 
 ``` r
-gg + 
-  theme2(
-       text(f="bold", z=24, fmly="Times New Roman"),      # make all text thicker/larger 
-       pnl.bg(fill="white"),
-       lgd.box.margin(.2, .2, .2, .2, "cm"),
-       lgd.box.bg(c="black"),
-       lgd.key(fill="white"),
-       lgd.position("bottom"),
-       lgd.txt(z=rel(.8)),
-       lgd.title(fmly="Consolas", c="royalblue"),         # equally-spaced font
-       axs.title(fmly="Consolas", c="royalblue"),         # colorize axis titles
-       axs.title.y(angle=0, vjust=.5),                    # rotate and centerize y axis label
-       axs.txt(z=rel(1.1)),
-       axs.line(arrow=arrow(type="open", angle=20), z=2), # 
-       axs.tick(z=1),                                     # tick or ticks? It doesn't matter
-       axs.tick.len(.5, "cm"),
-       plt.subttl(f="plain", hjust=1),
-       plt.margin(.3, .3, .3, .1, "inch")                # adjust margins
+# If using ggplot2::theme():
+gg + theme(
+                   text = element_text(face="bold", size=24, family="Times New Roman"),
+       panel.background = element_rect(fill="white"),
+      legend.box.margin = margin(0.2,0.2,0.2,0.2,"cm"),
+  legend.box.background = element_rect(colour="black"),
+             legend.key = element_rect(fill="white"),
+        legend.position = "bottom",
+            legend.text = element_text(size=rel(0.8)),
+           legend.title = element_text(family="Consolas", colour="royalblue"),
+             axis.title = element_text(family="Consolas", colour="royalblue"),
+           axis.title.y = element_text(angle=0, vjust=0.5),
+              axis.text = element_text(size=rel(1.1)),
+              axis.line = element_line(arrow=arrow(type="open",angle=20), size=2),
+             axis.ticks = element_line(size=1),
+      axis.ticks.length = grid::unit(0.5,"cm"),
+          plot.subtitle = element_text(face="plain", hjust=1),
+            plot.margin = margin(0.3,0.3,0.3,0.1,"inch")
   )
 ```
 
 ![ggconf Example](inst/image/README-pop.png)
 
+ggconf enables modifying these parameters with concice notations.
+
+#### With ggconf
+
 ``` r
-# If using ggplot2::theme():
-gg + theme(
-  text = element_text(face="bold", size=24, family="Times New Roman"),
-  panel.background = element_rect(fill="white"),
-  legend.box.margin = margin(0.2,0.2,0.2,0.2,"cm"),
-  legend.box.background = element_rect(colour="black"),
-  legend.key = element_rect(fill="white"),
-  legend.position = "bottom",
-  legend.text = element_text(size=rel(0.8)),
-  legend.title = element_text(family="Consolas", colour="royalblue"),
-  axis.title = element_text(family="Consolas", colour="royalblue"),
-  axis.title.y = element_text(angle=0, vjust=0.5),
-  axis.text = element_text(size=rel(1.1)),
-  axis.line = element_line(arrow=arrow(type="open",angle=20), size=2),
-  axis.ticks = element_line(size=1),
-  axis.ticks.length = grid::unit(0.5,"cm"),
-  plot.subtitle = element_text(face="plain", hjust=1),
-  plot.margin = margin(0.3,0.3,0.3,0.1,"inch")
+gg + 
+  theme2(
+       txt(f="bold", sz=24, family="Times New Roman"),    # make all text thicker/larger 
+       pnl.bg(fill="white"),
+       lgd.box.bg(c="black"),
+       lgd.box.margin(.2, .2, .2, .2, "cm"),
+       lgd.key(fill="white"),
+       lgd.pos("bottom"),
+       lgd.txt(z=rel(.8)),
+       lgd.title(family="Consolas", c="royalblue"),       # equally-spaced font
+       axs.title(family="Consolas", c="royalblue"),       # colorize axis titles
+       axs.title.y(angle=0, vjust=.5),                    # rotate and centerize y axis label
+       axs.txt(z=rel(1.1)),
+       axs.line(arrow=arrow(type="open", angle=20), z=2), # 
+       axs.tick(sz=1),                                    # tick or ticks? It doesn't matter
+       axs.tick.len(.5, "cm"),
+       plt.subtitle(f="plain", hjust=1),
+       plt.margin(.3, .3, .3, .1, "inch")                 # adjust margins
   )
 ```
-
-Goals
------
-
-The goal of ggconf is to make it less stressful to finalize your plots. + adjust colours or lineweights + rotate axis labels + decide tick label intervals and limits
-
-<!--    + generate line-wrapped titles or legends -->
-Learning ggconf
----------------
-
-`ggconf` follows original ggplot2 syntax as much as possible for reducing learning costs of current ggplot2 users.
-
-Learning ggplot2 might be the best way to understand ggbash syntax. The [document](http://docs.ggplot2.org/current/) and [book](https://github.com/hadley/ggplot2-book) of ggplot2 would be helpful.
 
 Other Works
 -----------
 
-`ggconf` draws inspiration from some other higher level programming languages including Bash, CoffeeScript, Ruby, and Lisp. <!-- Fixit is inspired by [Fix-It Hints](http://clang.llvm.org/docs/InternalsManual.html#fix-it-hints) in clang C++ compiler. -->
+`ggconf` draws inspiration from some other higher level programming languages including Bash, CoffeeScript, Lisp, and Ruby.
 
+<!-- Fixit is inspired by [Fix-It Hints](http://clang.llvm.org/docs/InternalsManual.html#fix-it-hints) in clang C++ compiler. -->
 Current Implementation Status
 -----------------------------
 
-ggbash is first released on August 24, 2017.
+ggconf is first released on August 24, 2017.
 
 -   DONE:
     -   version 0.1 : lightweight port from ggbash

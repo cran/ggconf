@@ -77,6 +77,20 @@ test_that("theme2", {
     ee(fullset, fullset_ggplot)
 
     ee(suppressMessages(theme2(aaaaaaaaaaa(size=3))), FALSE)
+    
+    ee(theme2(ax.ttl(col=paste0('sky','blue'))),
+       theme(axis.title = element_text(color=paste0('sky','blue'))))
+    
+    ee(theme2(a.txt(family=c("consolas", "Times New Roman")[1])),
+       theme(axis.text = element_text(family="consolas")))
+    
+    ee(theme2(a.txt(family=c("consolas", "Times New Roman")[2])),
+       theme(axis.text = element_text(family="Times New Roman")))
+    
+    my.se_1_ection <<- 1
+    ee(theme2(a.txt(family=c("consolas", "Times New Roman")[my.se_1_ection])),
+       theme(axis.text = element_text(family="consolas")))
+    
 })
 
 test_that("partial-match", {
@@ -115,5 +129,19 @@ test_that("partial-match", {
     ee(p2f("pnl.bd"), "panel.border")
     ee(p2f("plot.bg"), "plot.background")
     ee(p2f("s.txt"), "strip.text")
+})
+
+test_that("partial-match-conf", {
+    
+    etext <- get_theme_elem_name_conf("element_text")
+    
+    # partial to full
+    p2conf <- function(p, elem_tbl) {
+        elem_tbl[find_first_index(p, elem_tbl,
+                                  show_warn = FALSE, debug = FALSE)]
+    }
+
+    ee(p2conf("c", etext),  "colour")
+    
 })
 

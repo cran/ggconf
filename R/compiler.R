@@ -23,8 +23,7 @@ ggregex <- list(
     constaes   = "[a-z\\.]+=c\\([0-9\\.,\\)]+", # FIXME adhoc for binw=c(.1, .1)
     # Note: ggregex$constaes and t_CONSTAES rules are duplicated
     unit       = "[0-9\\.,]+\\s*['\"]?(cm|in|inch|inches)['\"]?",
-    arrow      = "arrow\\(.*\\)", # FIXME adhoc
-    data       = "data="
+    func       = "[a-z\\.]+=(arrow|rel|paste|paste0|c)\\([^#]*\\)"
 )
 
 Ggplot2Lexer <-
@@ -67,15 +66,14 @@ Ggplot2Lexer <-
                 ggconf_dbgmsg("  t_POUND: ", t$value)
                 t$type <- "POUND"; return(t) 
             },
-            # FIXME g + theme2(ax.txt(sz=20), ax.ttl(col=paste0('sky','blue'), sz=20))
             t_COMMA = function(re=",", t) {
                 ggconf_dbgmsg("  t_COMMA: ", t$value)
                 t$type <- "COMMA"; return(t) 
             },
-            t_0_FUNC = function(re="[a-z\\.]+=(arrow|rel|paste0)\\([^#]*\\)", t) {
-                # FIXME any function
+            t_0_FUNC = function(re = "[a-z\\.]+=(arrow|rel|paste|paste0|c)\\([^#]*\\)(\\[[0-9a-zA-Z\\._]+\\])?", t) {
                 ggconf_dbgmsg("  t_0_FUNC: ", t$value)
-                t$type <- "0_FUNC"; return(t) 
+                t$type <- "0_FUNC"; 
+                return(t) 
             },
             t_1_NAME      = function(re="(\\\"|')?[\\.a-zA-Z0-9_\\(\\)\\-][a-zA-Z_0-9\\.,=\\(\\)\\-\\+\\/\\*]*(\\\"|')?(\\s*inches|\\s*inch|\\s*in|\\s*cm)?(\\\"|')?", t) {
                 if (grepl("theme\\(", t$value)) {
@@ -87,10 +85,7 @@ Ggplot2Lexer <-
                     t$type <- "ENDOFTOKEN"
                     return(t)
                 }
-                if (grepl(ggregex$data, t$value)) {
-                    ggconf_dbgmsg("  t_NAME: DATA ", t$value)
-                    t$type <- "CONSTAES"
-                } else if (grepl(ggregex$constaes, t$value)) {
+                if (grepl(ggregex$constaes, t$value)) {
                     ggconf_dbgmsg("  t_NAME: CONSTAES ", t$value)
                     t$type <- "CONSTAES"
                 } else if (grepl(ggregex$boolean, t$value)) {
@@ -293,17 +288,6 @@ Ggplot2Parser <-
                 # ggconf_dbgmsg("    before_equal: ", before_equal)
                 # ggconf_dbgmsg("     after_equal: ",  after_equal)
 
-                # FIXME this can be removed
-                if (before_equal == "c") {
-                    # element_text has "face" and "color",
-                    # and current edit distance algorithm matches "c"
-                    # to "face" not to "color" (because of the nchar).
-                    # This contradicts to the case when we specify "c"
-                    # in the element_rect or element_line.
-                    # Thus, rewrite here.
-                    before_equal = "colour"
-                }
-
                 # prefix match
                 input <- ggconfenv$elem_class
                 tbl <- get_theme_elem_name_conf(input)
@@ -360,7 +344,6 @@ show_fixit_diagnostics <- function(
         elem_table = c("axis.text", "axis.title")
     )
 ) {
-    # MAYBE-LATER Is it possible to get the built entire ggplot object here?
     message("COMPILE ERROR: ", err$type)
     m1 <- function(...) message("  ", ...)
     m2 <- function(...) message("    ", ...)

@@ -4,7 +4,7 @@ author: "Yasutaka Tanaka"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to ggbash}
+  %\VignetteIndexEntry{Introduction to ggconf}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
